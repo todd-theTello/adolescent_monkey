@@ -15,7 +15,7 @@ final goRouterProvider = Provider<GoRouter>(
     return GoRouter(
       refreshListenable: router,
       redirect: (context, state) => router.redirect(goRouterState: state, showErrorIfNonExistentRoute: true),
-      initialLocation: '/home',
+      initialLocation: '/login',
       routes: [
         GoRoute(
           path: '/login',

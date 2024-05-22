@@ -46,6 +46,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           ListView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             children: [
+              kVerticalSpace52,
               Text('Login to continue', style: context.titleLarge.copyWith(fontWeight: FontWeight.w500)),
               kVerticalSpace20,
               DefaultTextField(
@@ -89,10 +90,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                   return FilledButton(
                     onPressed: isValid
                         ? () => ref.read(authenticationProvider.notifier).authenticate(
-                              data: AuthenticationRequestData(
-                                email: email.text,
-                                password: password.text,
-                              ),
+                              data: AuthenticationRequestData(email: email.text, password: password.text),
                             )
                         : null,
                     child: const Text('Login'),
@@ -109,7 +107,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 onTapped: () => ref.read(routerConfigProvider.notifier).setRegister(),
               ),
             ],
-          )
+          ),
+          kVerticalSpace24,
         ],
       ).safeArea,
     );

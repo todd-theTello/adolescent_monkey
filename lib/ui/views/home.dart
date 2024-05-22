@@ -65,7 +65,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// the platform returns recognized words.
   void onSpeechResult(SpeechRecognitionResult result) {
     text.text = result.recognizedWords;
-    print(text.text);
   }
 
   @override
@@ -97,6 +96,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
         data: (data) {
           return AppBar(
             title: const Text('Adolescent Monkey'),
+            actions: [
+              IconButton(
+                onPressed: () async => showDialog<void>(
+                  context: context,
+                  builder: (_) => AlertDialogWidget(
+                    confirmAction: () => ref.read(routerConfigProvider.notifier).setLogOut(),
+                    header: 'Logout',
+                    content: 'Are you sure you want to logout?',
+                    confirmActionText: 'Yes, Logout',
+                  ),
+                ),
+                icon: const Icon(Iconsax.logout),
+              )
+            ],
           );
         },
         error: (_, __) => null,
@@ -265,6 +278,96 @@ class _HomeViewState extends ConsumerState<HomeView> {
         },
         loading: () => const Center(
           child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
+        ),
+      ),
+    );
+  }
+}
+
+///
+class AlertDialogWidget extends StatelessWidget {
+  ///
+  const AlertDialogWidget({
+    required this.confirmAction,
+    required this.header,
+    required this.content,
+    this.destroyAction,
+    this.confirmActionText,
+    this.destroyActionText,
+    super.key,
+  });
+
+  ///
+  final VoidCallback confirmAction;
+
+  ///
+  final VoidCallback? destroyAction;
+
+  ///
+  final String header;
+
+  ///
+  final String content;
+
+  ///
+  final String? confirmActionText;
+
+  ///
+  final String? destroyActionText;
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withOpacity(0.20),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(
+            maxHeight: 296,
+            minHeight: 140,
+            maxWidth: 500,
+            minWidth: 200,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                header,
+                textAlign: TextAlign.center,
+                style: context.titleLarge.copyWith(fontWeight: FontWeight.w500, color: kDarkColor.shade800),
+              ),
+              kVerticalSpace8,
+              Text(
+                content,
+                textAlign: TextAlign.center,
+                style: context.bodyMedium.copyWith(color: kDarkColor.shade500),
+              ),
+              kVerticalSpace20,
+              Row(
+                children: [
+                  FilledButton(
+                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                    onPressed: confirmAction,
+                    child: Text(confirmActionText ?? 'Yes, Delete'),
+                  ).expanded,
+                  kHorizontalSpace12,
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: kDarkColor.shade200,
+                      foregroundColor: kDarkColor.shade800,
+                    ),
+                    onPressed: destroyAction ?? () => Navigator.of(context).pop(),
+                    child: Text(destroyActionText ?? 'Cancel'),
+                  ).expanded
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -61,6 +61,7 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
           ListView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             children: [
+              kVerticalSpace52,
               Text(
                 'Create an account to begin',
                 style: context.titleLarge.copyWith(fontWeight: FontWeight.w500, fontSize: 18),
@@ -185,7 +186,8 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
           RichTextWidget(texts: [
             BaseText.plain(text: "Already have an account?"),
             BaseText.custom(text: " Sign in", onTapped: () => ref.read(routerConfigProvider.notifier).setLogin()),
-          ])
+          ]),
+          kVerticalSpace24,
         ],
       ).safeArea,
     );
