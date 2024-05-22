@@ -20,6 +20,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -65,6 +66,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// the platform returns recognized words.
   void onSpeechResult(SpeechRecognitionResult result) {
     text.text = result.recognizedWords;
+    print(text.text);
   }
 
   @override
@@ -96,20 +98,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
         data: (data) {
           return AppBar(
             title: const Text('Adolescent Monkey'),
-            actions: [
-              IconButton(
-                onPressed: () async => showDialog<void>(
-                  context: context,
-                  builder: (_) => AlertDialogWidget(
-                    confirmAction: () => ref.read(routerConfigProvider.notifier).setLogOut(),
-                    header: 'Logout',
-                    content: 'Are you sure you want to logout?',
-                    confirmActionText: 'Yes, Logout',
-                  ),
-                ),
-                icon: const Icon(Iconsax.logout),
-              )
-            ],
           );
         },
         error: (_, __) => null,
@@ -126,28 +114,35 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           valueListenable: inputText,
                           builder: (context, text, _) {
                             return ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 24),
                               itemBuilder: (context, index) {
                                 if (text.isNotNull && index == data.length) {
                                   return CustomPaint(
                                     painter: UserChatBubble(context: context),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 20),
                                       constraints: BoxConstraints(
                                         minWidth: 64,
-                                        maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                        maxWidth:
+                                            MediaQuery.sizeOf(context).width *
+                                                0.7,
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             text!,
-                                            style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
+                                            style: context.bodyMedium.copyWith(
+                                                color: kDarkColor.shade800),
                                           ),
                                           const SizedBox(
                                             height: 12,
                                             width: 12,
-                                            child: CircularProgressIndicator.adaptive(),
+                                            child: CircularProgressIndicator
+                                                .adaptive(),
                                           ).centerRightAlign
                                         ],
                                       ),
@@ -156,19 +151,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 }
                                 final chat = data[index];
                                 return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     CustomPaint(
                                       painter: UserChatBubble(context: context),
                                       child: Container(
-                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 16, 16, 24),
                                         constraints: BoxConstraints(
                                           minWidth: 64,
-                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                          maxWidth:
+                                              MediaQuery.sizeOf(context).width *
+                                                  0.7,
                                         ),
                                         child: Text(
                                           chat.userInput!,
-                                          style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
+                                          style: context.bodyMedium.copyWith(
+                                              color: kDarkColor.shade800),
                                         ),
                                       ),
                                     ).centerRightAlign,
@@ -176,31 +176,41 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     CustomPaint(
                                       painter: BotChatBubble(context: context),
                                       child: Container(
-                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            16, 16, 16, 32),
                                         constraints: BoxConstraints(
                                           minWidth: 64,
-                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                          maxWidth:
+                                              MediaQuery.sizeOf(context).width *
+                                                  0.7,
                                         ),
                                         child: Text(
                                           chat.botResponse!,
-                                          style: context.bodyMedium.copyWith(color: Colors.white),
+                                          style: context.bodyMedium
+                                              .copyWith(color: Colors.white),
                                         ),
                                       ),
                                     ).centerLeftAlign,
                                   ],
                                 );
                               },
-                              separatorBuilder: (context, index) => kVerticalSpace16,
-                              itemCount: text.isNotNull ? data.length + 1 : data.length,
+                              separatorBuilder: (context, index) =>
+                                  kVerticalSpace16,
+                              itemCount: text.isNotNull
+                                  ? data.length + 1
+                                  : data.length,
                             );
                           }),
                       _ => Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset('assets/images/chats.svg', height: 140),
+                            SvgPicture.asset('assets/images/chats.svg',
+                                height: 140),
                             kVerticalSpace20,
                             Center(
-                              child: Text('This is the beginning of your session', style: context.bodyLarge),
+                              child: Text(
+                                  'This is the beginning of your session',
+                                  style: context.bodyLarge),
                             ),
                           ],
                         ),
@@ -219,7 +229,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(16)),
                 border: Border(
                   top: BorderSide(color: kDarkColor.shade300),
                 ),
@@ -232,20 +243,28 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       if (text.text.trim().isNotEmpty) {
                         stopListening();
                         inputText.value = text.text.trim();
-                        ref.read(chatsProvider.notifier).askChat(text: text.text);
+                        ref
+                            .read(chatsProvider.notifier)
+                            .askChat(text: text.text);
                         text.clear();
                       }
                     },
                     decoration: InputDecoration(
                       hintText: 'Ask any question...',
-                      suffixIcon: ValueListenableBuilder(
-                          valueListenable: speechEnabled,
-                          builder: (context, enabled, _) {
-                            return IconButton(
-                              onPressed: () => enabled ? stopListening() : startListening(),
-                              icon: Icon(enabled ? Iconsax.microphone_slash : Iconsax.microphone),
-                            );
-                          }),
+                      suffixIcon: ValueListenableBuilder<bool>(
+                        valueListenable: speechEnabled,
+                        builder: (context, enabled, _) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0), // Add margin here
+                            child: enabled
+                                ? LoadingAnimationWidget.staggeredDotsWave(
+                              color: Colors.green,
+                              size: 20,
+                            )
+                                : SizedBox(), // If not enabled, return an empty SizedBox
+                          );
+                        },
+                      )
                     ),
                   ).expanded,
                   kHorizontalSpace16,
@@ -254,14 +273,38 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       if (text.text.trim().isNotEmpty) {
                         stopListening();
                         inputText.value = text.text.trim();
-                        ref.read(chatsProvider.notifier).askChat(text: text.text);
+                        ref
+                            .read(chatsProvider.notifier)
+                            .askChat(text: text.text);
                         text.clear();
                       }
                     },
                     child: CircleContainer(
                       color: context.primaryColor,
                       padding: const EdgeInsets.all(12),
-                      child: const Icon(Iconsax.send1, color: Colors.white),
+                      child: GestureDetector(
+                        onTapDown: (_) {
+                          speechEnabled.value = true;
+                        },
+                        onTapUp: (_) {
+                          speechEnabled.value = false;
+                        },
+                        onTapCancel: () {
+                          speechEnabled.value = false;
+                        },
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: speechEnabled,
+                          builder: (context, enabled, _) {
+                            return IconButton(
+                              onPressed: () => enabled ? stopListening() : startListening(),
+                              icon: Icon(
+                                enabled ? Iconsax.microphone5 : Iconsax.send1,
+                                color: Colors.yellow,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   )
                 ],
@@ -277,97 +320,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
               });
         },
         loading: () => const Center(
-          child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
-        ),
-      ),
-    );
-  }
-}
-
-///
-class AlertDialogWidget extends StatelessWidget {
-  ///
-  const AlertDialogWidget({
-    required this.confirmAction,
-    required this.header,
-    required this.content,
-    this.destroyAction,
-    this.confirmActionText,
-    this.destroyActionText,
-    super.key,
-  });
-
-  ///
-  final VoidCallback confirmAction;
-
-  ///
-  final VoidCallback? destroyAction;
-
-  ///
-  final String header;
-
-  ///
-  final String content;
-
-  ///
-  final String? confirmActionText;
-
-  ///
-  final String? destroyActionText;
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black.withOpacity(0.20),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(
-            maxHeight: 296,
-            minHeight: 140,
-            maxWidth: 500,
-            minWidth: 200,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                header,
-                textAlign: TextAlign.center,
-                style: context.titleLarge.copyWith(fontWeight: FontWeight.w500, color: kDarkColor.shade800),
-              ),
-              kVerticalSpace8,
-              Text(
-                content,
-                textAlign: TextAlign.center,
-                style: context.bodyMedium.copyWith(color: kDarkColor.shade500),
-              ),
-              kVerticalSpace20,
-              Row(
-                children: [
-                  FilledButton(
-                    style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                    onPressed: confirmAction,
-                    child: Text(confirmActionText ?? 'Yes, Delete'),
-                  ).expanded,
-                  kHorizontalSpace12,
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: kDarkColor.shade200,
-                      foregroundColor: kDarkColor.shade800,
-                    ),
-                    onPressed: destroyAction ?? () => Navigator.of(context).pop(),
-                    child: Text(destroyActionText ?? 'Cancel'),
-                  ).expanded
-                ],
-              )
-            ],
-          ),
+          child: SizedBox(
+              height: 24,
+              width: 24,
+              child: CircularProgressIndicator.adaptive()),
         ),
       ),
     );
