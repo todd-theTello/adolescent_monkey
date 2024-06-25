@@ -30,16 +30,17 @@ class ChatsNotifier extends AutoDisposeAsyncNotifier<List<Chat>> {
   }
 
   Future<void> askChat({required String text}) async {
+    final chats = switch (state.value) { null => [], _ => [...state.value!] };
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await _repository.makeRequest(
+      final response = await _repository.makeRequest(
         path: Endpoints.bot,
         method: RequestMethod.post,
         data: {'input': text},
         fromJson: (json) => json['output'] as String?,
       );
 
-      return getChats();
+      return [...chats, Chat(botResponse: response!, userInput: text)];
     });
   }
 }

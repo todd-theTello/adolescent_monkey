@@ -17,10 +17,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({super.key});
@@ -34,7 +35,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   final ValueNotifier<String?> inputText = ValueNotifier(null);
   SpeechToText speechToText = SpeechToText();
   ValueNotifier<bool> speechEnabled = ValueNotifier(false);
-
+  FlutterTts flutterTts = FlutterTts();
   @override
   void initState() {
     initSpeech();
@@ -66,7 +67,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   /// the platform returns recognized words.
   void onSpeechResult(SpeechRecognitionResult result) {
     text.text = result.recognizedWords;
-    print(text.text);
   }
 
   @override
@@ -88,16 +88,29 @@ class _HomeViewState extends ConsumerState<HomeView> {
           }
         }
       })
-      ..listen(chatsProvider, (previous, current) {
+      ..listen(chatsProvider, (previous, current) async {
         if (current is! AsyncLoading) {
           inputText.value = null;
+        }
+        if (current is AsyncData) {
+          await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
+          await flutterTts.speak(current.value!.last.botResponse!);
         }
       });
     return Scaffold(
       appBar: user.when(
         data: (data) {
           return AppBar(
-            title: const Text('Adolescent Monkey'),
+            actions: [const Icon(Iconsax.textalign_justifycenter), kHorizontalSpace24],
+            centerTitle: true,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset('assets/images/chats.svg', height: 34),
+                kHorizontalSpace12,
+                const Text('Bob'),
+              ],
+            ),
           );
         },
         error: (_, __) => null,
@@ -114,35 +127,28 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           valueListenable: inputText,
                           builder: (context, text, _) {
                             return ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 24),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                               itemBuilder: (context, index) {
                                 if (text.isNotNull && index == data.length) {
                                   return CustomPaint(
                                     painter: UserChatBubble(context: context),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 20),
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
                                       constraints: BoxConstraints(
                                         minWidth: 64,
-                                        maxWidth:
-                                            MediaQuery.sizeOf(context).width *
-                                                0.7,
+                                        maxWidth: MediaQuery.sizeOf(context).width * 0.7,
                                       ),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             text!,
-                                            style: context.bodyMedium.copyWith(
-                                                color: kDarkColor.shade800),
+                                            style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
                                           ),
                                           const SizedBox(
                                             height: 12,
                                             width: 12,
-                                            child: CircularProgressIndicator
-                                                .adaptive(),
+                                            child: CircularProgressIndicator.adaptive(),
                                           ).centerRightAlign
                                         ],
                                       ),
@@ -151,24 +157,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                 }
                                 final chat = data[index];
                                 return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
                                     CustomPaint(
                                       painter: UserChatBubble(context: context),
                                       child: Container(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16, 16, 16, 24),
+                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
                                         constraints: BoxConstraints(
                                           minWidth: 64,
-                                          maxWidth:
-                                              MediaQuery.sizeOf(context).width *
-                                                  0.7,
+                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
                                         ),
                                         child: Text(
                                           chat.userInput!,
-                                          style: context.bodyMedium.copyWith(
-                                              color: kDarkColor.shade800),
+                                          style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
                                         ),
                                       ),
                                     ).centerRightAlign,
@@ -176,41 +177,31 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     CustomPaint(
                                       painter: BotChatBubble(context: context),
                                       child: Container(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16, 16, 16, 32),
+                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                                         constraints: BoxConstraints(
                                           minWidth: 64,
-                                          maxWidth:
-                                              MediaQuery.sizeOf(context).width *
-                                                  0.7,
+                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
                                         ),
                                         child: Text(
                                           chat.botResponse!,
-                                          style: context.bodyMedium
-                                              .copyWith(color: Colors.white),
+                                          style: context.bodyMedium.copyWith(color: Colors.white),
                                         ),
                                       ),
                                     ).centerLeftAlign,
                                   ],
                                 );
                               },
-                              separatorBuilder: (context, index) =>
-                                  kVerticalSpace16,
-                              itemCount: text.isNotNull
-                                  ? data.length + 1
-                                  : data.length,
+                              separatorBuilder: (context, index) => kVerticalSpace16,
+                              itemCount: text.isNotNull ? data.length + 1 : data.length,
                             );
                           }),
                       _ => Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset('assets/images/chats.svg',
-                                height: 140),
+                            SvgPicture.asset('assets/images/chats.svg', height: 140),
                             kVerticalSpace20,
                             Center(
-                              child: Text(
-                                  'This is the beginning of your session',
-                                  style: context.bodyLarge),
+                              child: Text('This is the beginning of your session', style: context.bodyLarge),
                             ),
                           ],
                         ),
@@ -229,8 +220,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
               decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 border: Border(
                   top: BorderSide(color: kDarkColor.shade300),
                 ),
@@ -243,70 +233,57 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       if (text.text.trim().isNotEmpty) {
                         stopListening();
                         inputText.value = text.text.trim();
-                        ref
-                            .read(chatsProvider.notifier)
-                            .askChat(text: text.text);
+                        ref.read(chatsProvider.notifier).askChat(text: text.text);
                         text.clear();
                       }
                     },
                     decoration: InputDecoration(
-                      hintText: 'Ask any question...',
-                      suffixIcon: ValueListenableBuilder<bool>(
-                        valueListenable: speechEnabled,
-                        builder: (context, enabled, _) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0), // Add margin here
-                            child: enabled
-                                ? LoadingAnimationWidget.staggeredDotsWave(
-                              color: Colors.green,
-                              size: 20,
-                            )
-                                : SizedBox(), // If not enabled, return an empty SizedBox
-                          );
-                        },
-                      )
-                    ),
-                  ).expanded,
-                  kHorizontalSpace16,
-                  CustomAnimatedScale(
-                    onPressed: () {
-                      if (text.text.trim().isNotEmpty) {
-                        stopListening();
-                        inputText.value = text.text.trim();
-                        ref
-                            .read(chatsProvider.notifier)
-                            .askChat(text: text.text);
-                        text.clear();
-                      }
-                    },
-                    child: CircleContainer(
-                      color: context.primaryColor,
-                      padding: const EdgeInsets.all(12),
-                      child: GestureDetector(
-                        onTapDown: (_) {
-                          speechEnabled.value = true;
-                        },
-                        onTapUp: (_) {
-                          speechEnabled.value = false;
-                        },
-                        onTapCancel: () {
-                          speechEnabled.value = false;
-                        },
-                        child: ValueListenableBuilder<bool>(
+                        hintText: 'Ask any question...',
+                        suffixIcon: ValueListenableBuilder<bool>(
                           valueListenable: speechEnabled,
                           builder: (context, enabled, _) {
-                            return IconButton(
-                              onPressed: () => enabled ? stopListening() : startListening(),
-                              icon: Icon(
-                                enabled ? Iconsax.microphone5 : Iconsax.send1,
-                                color: Colors.yellow,
-                              ),
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0), // Add margin here
+                              child: enabled
+                                  ? LoadingAnimationWidget.staggeredDotsWave(
+                                      color: Colors.green,
+                                      size: 20,
+                                    )
+                                  : const SizedBox(), // If not enabled, return an empty SizedBox
                             );
                           },
-                        ),
-                      ),
-                    ),
-                  )
+                        )),
+                  ).expanded,
+                  kHorizontalSpace16,
+                  ValueListenableBuilder<bool>(
+                      valueListenable: speechEnabled,
+                      builder: (context, enabled, _) {
+                        return CustomAnimatedScale(
+                          onLongPress: () {
+                            speechEnabled.value = true;
+                            startListening();
+                          },
+                          onLongPressUp: () {
+                            stopListening();
+                            speechEnabled.value = false;
+                          },
+                          onPressed: () {
+                            if (text.text.trim().isNotEmpty) {
+                              inputText.value = text.text.trim();
+                              ref.read(chatsProvider.notifier).askChat(text: text.text);
+                              text.clear();
+                            }
+                          },
+                          child: CircleContainer(
+                            color: context.primaryColor,
+                            padding: const EdgeInsets.all(12),
+                            child: Icon(
+                              enabled ? Iconsax.microphone5 : Iconsax.send1,
+                              color: Colors.yellow,
+                            ),
+                          ),
+                        );
+                      })
                 ],
               ),
             ),
@@ -320,10 +297,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               });
         },
         loading: () => const Center(
-          child: SizedBox(
-              height: 24,
-              width: 24,
-              child: CircularProgressIndicator.adaptive()),
+          child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
         ),
       ),
     );

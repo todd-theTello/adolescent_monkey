@@ -4,11 +4,20 @@ import 'package:flutter/services.dart';
 /// Scales the child widget by a when it is pressed
 class CustomAnimatedScale extends StatelessWidget {
   ///  animated scale constructor
-  const CustomAnimatedScale(
-      {required this.onPressed, required this.child, this.onLongPress, this.animatedScale, super.key});
+  const CustomAnimatedScale({
+    required this.onPressed,
+    required this.child,
+    this.onLongPress,
+    this.onLongPressUp,
+    this.animatedScale,
+    super.key,
+  });
 
   /// Function to perform on long press
   final VoidCallback? onLongPress;
+
+  /// Function to perform on long press
+  final VoidCallback? onLongPressUp;
 
   /// Function to perform on press
   final VoidCallback onPressed;
@@ -42,6 +51,7 @@ class CustomAnimatedScale extends StatelessWidget {
           onTapCancel: () => isPressed.value = false,
           onTap: onPressed,
           onLongPress: onLongPress,
+          onLongPressUp: onLongPressUp,
           child: AnimatedScale(
             scale: pressed ? animatedScale ?? 0.95 : 1,
             duration: const Duration(milliseconds: 200),

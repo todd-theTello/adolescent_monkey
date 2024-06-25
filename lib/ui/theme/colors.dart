@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color lightThemePrimaryColor = Color(0xFFE53875);
+const Color lightThemePrimaryColor = Color(0xFFFF773D);
 const Color kWineSecondary = Color(0xFFF899BA);
 const Color kWineTertiary = Color(0xFFFFE2EC);
 
