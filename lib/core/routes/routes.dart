@@ -1,5 +1,6 @@
 import 'package:adolescence_chat_bot/ui/views/home.dart';
 import 'package:adolescence_chat_bot/ui/views/register.dart';
+import 'package:adolescence_chat_bot/ui/views/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,23 +16,12 @@ final goRouterProvider = Provider<GoRouter>(
     return GoRouter(
       refreshListenable: router,
       redirect: (context, state) => router.redirect(goRouterState: state, showErrorIfNonExistentRoute: true),
-      initialLocation: '/login',
+      initialLocation: '/home',
       routes: [
-        GoRoute(
-          path: '/login',
-          name: 'login',
-          builder: (context, state) => const LoginView(),
-        ),
-        GoRoute(
-          path: '/register',
-          name: 'register',
-          builder: (context, state) => const RegisterView(),
-        ),
-        GoRoute(
-          path: '/home',
-          name: 'home',
-          builder: (context, state) => const HomeView(),
-        ),
+        GoRoute(path: '/', name: 'welcome', builder: (context, state) => const WelcomeView()),
+        GoRoute(path: '/login', name: 'login', builder: (context, state) => const LoginView()),
+        GoRoute(path: '/register', name: 'register', builder: (context, state) => const RegisterView()),
+        GoRoute(path: '/home', name: 'home', builder: (context, state) => const HomeView()),
       ],
     );
   },

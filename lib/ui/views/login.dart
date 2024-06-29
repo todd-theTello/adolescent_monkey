@@ -8,6 +8,7 @@ import 'package:adolescence_chat_bot/utils/extensions/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../utils/mixins/input_validation_mixins.dart';
 import '../../utils/overlays/loading/loading_screen.dart';
@@ -41,64 +42,63 @@ class _LoginViewState extends ConsumerState<LoginView> {
       }
     });
     return Scaffold(
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         children: [
-          ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            children: [
-              kVerticalSpace52,
-              Text('Login to continue', style: context.titleLarge.copyWith(fontWeight: FontWeight.w500)),
-              kVerticalSpace20,
-              DefaultTextField(
-                controller: email,
-                keyboardType: TextInputType.emailAddress,
-                validatorPattern: kEmailValidationPattern,
-                labelText: 'Email',
-                hintText: 'Enter your email address',
-                errorText: 'Please enter a valid email address',
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(kEmailInputPattern))],
-                onChanged: checkForm,
+          kVerticalSpace16,
+          SvgPicture.asset('assets/images/adole-bot.svg', height: 160),
+          kVerticalSpace16,
+          Text('Login to continue', style: context.titleMedium.copyWith(fontWeight: FontWeight.w600)),
+          kVerticalSpace20,
+          DefaultTextField(
+            controller: email,
+            keyboardType: TextInputType.emailAddress,
+            validatorPattern: kEmailValidationPattern,
+            labelText: 'Email',
+            hintText: 'Enter your email address',
+            errorText: 'Please enter a valid email address',
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(kEmailInputPattern))],
+            onChanged: checkForm,
+          ),
+          kVerticalSpace16,
+          DefaultTextField(
+            controller: password,
+            keyboardType: TextInputType.visiblePassword,
+            validatorPattern: kPasswordValidationPattern,
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(kPasswordInputPattern))],
+            errorText: 'Password must contain at least 8 characters',
+            labelText: 'Password',
+            hintText: 'Enter your password',
+            hasTrailingObscureIcon: true,
+            onChanged: checkForm,
+          ),
+          kVerticalSpace20,
+          GestureDetector(
+            child: Text(
+              'Forgot password?',
+              textAlign: TextAlign.right,
+              style: context.bodyMedium.copyWith(
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+                decorationThickness: 2,
               ),
-              kVerticalSpace16,
-              DefaultTextField(
-                controller: password,
-                keyboardType: TextInputType.visiblePassword,
-                validatorPattern: kPasswordValidationPattern,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(kPasswordInputPattern))],
-                errorText: 'Password must contain at least 8 characters',
-                labelText: 'Password',
-                hintText: 'Enter your password',
-                hasTrailingObscureIcon: true,
-                onChanged: checkForm,
-              ),
-              kVerticalSpace20,
-              GestureDetector(
-                child: Text(
-                  'Forgot password?',
-                  textAlign: TextAlign.right,
-                  style: context.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
-                    decorationThickness: 2,
-                  ),
-                ),
-              ),
-              kVerticalSpace20,
-              ValueListenableBuilder(
-                valueListenable: formIsValid,
-                builder: (context, isValid, _) {
-                  return FilledButton(
-                    onPressed: isValid
-                        ? () => ref.read(authenticationProvider.notifier).authenticate(
-                              data: AuthenticationRequestData(email: email.text, password: password.text),
-                            )
-                        : null,
-                    child: const Text('Login'),
-                  );
-                },
-              )
-            ],
-          ).expanded,
+            ),
+          ),
+          kVerticalSpace20,
+          ValueListenableBuilder(
+            valueListenable: formIsValid,
+            builder: (context, isValid, _) {
+              return FilledButton(
+                onPressed: isValid
+                    ? () => ref.read(authenticationProvider.notifier).authenticate(
+                          data: AuthenticationRequestData(email: email.text, password: password.text),
+                        )
+                    : null,
+                child: const Text('Login'),
+              );
+            },
+          ),
+          kVerticalSpace24,
           RichTextWidget(
             texts: [
               BaseText.plain(text: "Don't have an account?"),
@@ -107,8 +107,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 onTapped: () => ref.read(routerConfigProvider.notifier).setRegister(),
               ),
             ],
+            textAlign: TextAlign.center,
           ),
-          kVerticalSpace24,
         ],
       ).safeArea,
     );

@@ -43,7 +43,6 @@ class SecureStorage {
   static Future<String?> readFromStorage({required String key}) async {
     final response = await _storage.read(
       key: key,
-      iOptions: _getIOSOptions(),
       aOptions: _getAndroidOptions(),
     );
     return response;

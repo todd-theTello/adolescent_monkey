@@ -41,6 +41,7 @@ class AuthenticationRequestData {
     this.firstName,
     this.surname,
     this.gender,
+    this.type,
     this.dateOfBirth,
   });
   final String email;
@@ -48,6 +49,7 @@ class AuthenticationRequestData {
   final String? firstName;
   final String? surname;
   final String? gender;
+  final String? type;
   final DateTime? dateOfBirth;
   Map<String, dynamic> toJson() => {
         if (firstName.isNotNull) "firstName": firstName,
@@ -56,5 +58,6 @@ class AuthenticationRequestData {
         if (gender.isNotNull) "gender": gender,
         "email": email,
         "password": password,
+        if (type != null) 'type': type,
       };
 }

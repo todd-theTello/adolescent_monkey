@@ -36,10 +36,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
   SpeechToText speechToText = SpeechToText();
   ValueNotifier<bool> speechEnabled = ValueNotifier(false);
   FlutterTts flutterTts = FlutterTts();
+  bool toSpeach = false;
   @override
   void initState() {
     initSpeech();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    text.dispose();
+    speechToText.cancel();
+    super.dispose();
   }
 
   /// This has to happen only once per app
@@ -49,6 +57,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   /// Each time to start a speech recognition session
   Future<void> startListening() async {
+    toSpeach = true;
     speechEnabled.value = true;
     await speechToText.listen(onResult: onSpeechResult);
   }
@@ -70,12 +79,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   @override
-  void dispose() {
-    text.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
     final chats = ref.watch(chatsProvider.buildWhenData);
@@ -93,31 +96,49 @@ class _HomeViewState extends ConsumerState<HomeView> {
           inputText.value = null;
         }
         if (current is AsyncData) {
-          await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
-          await flutterTts.speak(current.value!.last.botResponse!);
+          if (toSpeach) {
+            await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
+            await flutterTts.speak(current.value!.last.botResponse!);
+          }
         }
       });
-    return Scaffold(
-      appBar: user.when(
-        data: (data) {
-          return AppBar(
-            actions: [const Icon(Iconsax.textalign_justifycenter), kHorizontalSpace24],
-            centerTitle: true,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset('assets/images/chats.svg', height: 34),
-                kHorizontalSpace12,
-                const Text('Bob'),
-              ],
-            ),
-          );
-        },
-        error: (_, __) => null,
-        loading: () => null,
-      ),
-      body: user.when(
-        data: (data) => Column(
+    return user.when(
+      data: (data) => Scaffold(
+        endDrawer: Drawer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(data!.firstName!, style: context.titleLarge),
+              Text('${data.age} years old', style: context.titleSmall),
+              const Spacer(),
+              TextButton(
+                  onPressed: () => ref.read(routerConfigProvider.notifier).setLogOut(),
+                  child: Row(
+                    children: [const Icon(Iconsax.logout), kHorizontalSpace8, const Text('Logout')],
+                  ))
+            ],
+          ).paddingSymmetric(horizontal: 20, vertical: 20).safeArea,
+        ),
+        appBar: AppBar(
+          // actions: [
+          //   IconButton(
+          //       onPressed: () {
+          //         Scaffold.of(context).openEndDrawer();
+          //       },
+          //       icon: const Icon(Iconsax.textalign_justifycenter)),
+          //   kHorizontalSpace24
+          // ],
+          centerTitle: true,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset('assets/images/adole-bot.svg', height: 34),
+              kHorizontalSpace12,
+              const Text('Teen bot'),
+            ],
+          ),
+        ),
+        body: Column(
           children: [
             chats
                 .when(
@@ -198,7 +219,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       _ => Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset('assets/images/chats.svg', height: 140),
+                            SvgPicture.asset('assets/images/adole-bot.svg', height: 140),
                             kVerticalSpace20,
                             Center(
                               child: Text('This is the beginning of your session', style: context.bodyLarge),
@@ -231,6 +252,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     controller: text,
                     onSubmitted: (_) {
                       if (text.text.trim().isNotEmpty) {
+                        toSpeach = true;
                         stopListening();
                         inputText.value = text.text.trim();
                         ref.read(chatsProvider.notifier).askChat(text: text.text);
@@ -238,21 +260,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       }
                     },
                     decoration: InputDecoration(
-                        hintText: 'Ask any question...',
-                        suffixIcon: ValueListenableBuilder<bool>(
-                          valueListenable: speechEnabled,
-                          builder: (context, enabled, _) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0), // Add margin here
-                              child: enabled
-                                  ? LoadingAnimationWidget.staggeredDotsWave(
-                                      color: Colors.green,
-                                      size: 20,
-                                    )
-                                  : const SizedBox(), // If not enabled, return an empty SizedBox
-                            );
-                          },
-                        )),
+                      hintText: 'Ask any question...',
+                      suffixIcon: ValueListenableBuilder<bool>(
+                        valueListenable: speechEnabled,
+                        builder: (context, enabled, _) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0), // Add margin here
+                            child: enabled
+                                ? LoadingAnimationWidget.staggeredDotsWave(
+                                    color: Colors.green,
+                                    size: 20,
+                                  )
+                                : const SizedBox(), // If not enabled, return an empty SizedBox
+                          );
+                        },
+                      ),
+                    ),
                   ).expanded,
                   kHorizontalSpace16,
                   ValueListenableBuilder<bool>(
@@ -269,6 +292,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           },
                           onPressed: () {
                             if (text.text.trim().isNotEmpty) {
+                              toSpeach = true;
                               inputText.value = text.text.trim();
                               ref.read(chatsProvider.notifier).askChat(text: text.text);
                               text.clear();
@@ -277,10 +301,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           child: CircleContainer(
                             color: context.primaryColor,
                             padding: const EdgeInsets.all(12),
-                            child: Icon(
-                              enabled ? Iconsax.microphone5 : Iconsax.send1,
-                              color: Colors.yellow,
-                            ),
+                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.yellow),
                           ),
                         );
                       })
@@ -289,16 +310,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
-        error: (error, stacktrace) {
-          return NetworkErrorWidget(
-              message: error.errorToString,
-              onPressed: () {
-                ref.read(userProvider.notifier).getUser();
-              });
-        },
-        loading: () => const Center(
-          child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
-        ),
+      ),
+      error: (error, stacktrace) {
+        return NetworkErrorWidget(
+            message: error.errorToString,
+            onPressed: () {
+              ref.read(userProvider.notifier).getUser();
+            });
+      },
+      loading: () => const Center(
+        child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
       ),
     );
   }

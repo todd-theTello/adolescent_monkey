@@ -1,9 +1,13 @@
+import 'package:adolescence_chat_bot/core/database/shared_preference.dart';
 import 'package:adolescence_chat_bot/core/routes/routes.dart';
 import 'package:adolescence_chat_bot/ui/theme/light_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await LocalPreference.init();
   runApp(const ProviderScope(child: MyApp()));
 }
 

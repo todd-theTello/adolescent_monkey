@@ -1,3 +1,4 @@
+import 'package:adolescence_chat_bot/core/database/shared_preference.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,7 @@ enum AuthorizationState {
   /// Authorization level of a user yet to pass authentication
   login,
   register,
+  onboarding,
 }
 
 /// Router config provider
@@ -30,20 +32,26 @@ class RouterConfigNotifier extends Notifier<AuthorizationState> implements Liste
 
   /// check the onboarding state depending on the value from local db
   Future<void> checkOnboarding() async {
+    if (LocalPreference.isLoggedIn == false) {
+      SecureStorage.deleteFromStorage(key: SecureStorage.token);
+    }
     final token = await SecureStorage.readFromStorage(key: SecureStorage.token);
     state = switch (token.isNotNull && token!.isNotEmpty) {
       true => AuthorizationState.authorized,
-      _ => AuthorizationState.login
+      _ => (!LocalPreference.hasOnboarded) ? AuthorizationState.onboarding : AuthorizationState.login,
     };
     _routerListener?.call();
   }
 
   void setLogin() {
+    LocalPreference.writeBoolToStorage(key: LocalPreference.KEY_ON_BOARDED, value: true);
     state = AuthorizationState.login;
     _routerListener?.call();
   }
 
   void setRegister() {
+    LocalPreference.writeBoolToStorage(key: LocalPreference.KEY_ON_BOARDED, value: true);
+
     state = AuthorizationState.register;
     _routerListener?.call();
   }
@@ -51,6 +59,13 @@ class RouterConfigNotifier extends Notifier<AuthorizationState> implements Liste
   /// set the the value on onboarded to true
   Future<void> setLoggedIn({required String token}) async {
     await SecureStorage.writeToStorage(key: SecureStorage.token, value: token);
+    await LocalPreference.writeBoolToStorage(key: LocalPreference.KEY_IS_LOGIN, value: true);
+    await checkOnboarding();
+  }
+
+  /// set the the value on onboarded to true
+  Future<void> setOnboarded() async {
+    await LocalPreference.writeBoolToStorage(key: LocalPreference.KEY_ON_BOARDED, value: true);
     await checkOnboarding();
   }
 
@@ -62,9 +77,10 @@ class RouterConfigNotifier extends Notifier<AuthorizationState> implements Liste
 
   /// redirect login to be used by go router
   String? redirect({required GoRouterState goRouterState, required bool showErrorIfNonExistentRoute}) {
-    if (state == AuthorizationState.initial) return null;
     final isLoggedIn = state == AuthorizationState.authorized;
     if (isLoggedIn) return '/home';
+    if (state == AuthorizationState.initial) return null;
+    if (!LocalPreference.hasOnboarded) return '/';
 
     final isRegister = state == AuthorizationState.register;
     if (isRegister) return '/register';
