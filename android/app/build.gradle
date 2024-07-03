@@ -71,11 +71,11 @@ dependencies {
 
 }
 
-afterEvaluate {
-    tasks.named('mapDebugSourceSetPaths').configure {
-        dependsOn 'processDebugGoogleServices'
-    }
-    tasks.named('mapReleaseSourceSetPaths').configure {
-        dependsOn 'processReleaseGoogleServices'
-    }
-}
+//afterEvaluate {
+//    tasks.named('mapDebugSourceSetPaths').configure {
+//        dependsOn 'processDebugGoogleServices'
+//    }
+//    tasks.named('mapReleaseSourceSetPaths').configure {
+//        dependsOn 'processReleaseGoogleServices'
+//    }
+//}

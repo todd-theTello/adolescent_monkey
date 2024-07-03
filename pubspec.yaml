@@ -57,12 +57,18 @@ flutter_launcher_icons:
 
 
 flutter_native_splash:
-  image: "assets/images/logo.png"
+  image: "assets/images/logo-1.png"
   color: "#ffffff"
 
 
 # The following section is specific to Flutter packages.
 flutter:
+  fonts:
+    - family: Wittgenstein
+      fonts:
+        - asset: assets/fonts/Wittgenstein-Italic-VariableFont_wght.ttf
+        - asset: assets/fonts/Wittgenstein-VariableFont_wght.ttf
+          weight: 700
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

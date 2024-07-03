@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-const Color lightThemePrimaryColor = Color(0xFFFF773D);
+const Color lightThemePrimaryColor = Color(0xFF1A1A1A);
 const Color kWineSecondary = Color(0xFFF899BA);
 const Color kWineTertiary = Color(0xFFFFE2EC);
 
 const Color kWhiteColor = Color(0xFFFFFFFF);
 const Color kGreyColor = Color(0xFFF7F7F7);
 
-const Color orangeTextColor = Color(0xFFFF773D);
+const Color orangeTextColor = Color(0xFF7DA386);
 
 const Color lightThemeBackgroundColor = Color(0xFFFAFAFA);
 

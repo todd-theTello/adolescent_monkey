@@ -45,11 +45,11 @@ class _LoginViewState extends ConsumerState<LoginView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         children: [
-          kVerticalSpace16,
-          SvgPicture.asset('assets/images/adole-bot.svg', height: 160),
-          kVerticalSpace16,
-          Text('Login to continue', style: context.titleMedium.copyWith(fontWeight: FontWeight.w600)),
-          kVerticalSpace20,
+          kVerticalSpace52,
+          SvgPicture.asset('assets/images/icon-1.svg', height: 60, alignment: Alignment.centerLeft,),
+          kVerticalSpace56,
+          Text('Login to continue', style: context.titleLarge.copyWith(fontWeight: FontWeight.w600, fontFamily:'Wittgenstein')),
+          kVerticalSpace24,
           DefaultTextField(
             controller: email,
             keyboardType: TextInputType.emailAddress,

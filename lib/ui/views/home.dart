@@ -132,8 +132,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset('assets/images/adole-bot.svg', height: 34),
-              kHorizontalSpace12,
+              SvgPicture.asset('assets/images/icon-1.svg', height: 32),
+              kHorizontalSpace16,
               const Text('Teen bot'),
             ],
           ),
@@ -239,12 +239,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 )
                 .expanded,
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                border: Border(
-                  top: BorderSide(color: kDarkColor.shade300),
-                ),
+              padding: const EdgeInsets.fromLTRB(20, 5, 20, 32),
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: Row(
                 children: [
@@ -301,7 +298,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           child: CircleContainer(
                             color: context.primaryColor,
                             padding: const EdgeInsets.all(12),
-                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.yellow),
+                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.white),
                           ),
                         );
                       })

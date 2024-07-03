@@ -62,15 +62,16 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         children: [
-          kVerticalSpace16,
-          SvgPicture.asset('assets/images/adole-bot.svg', height: 120),
+          kVerticalSpace52,
+          SvgPicture.asset('assets/images/icon-1.svg', height: 60, alignment: Alignment.centerLeft,),
+          kVerticalSpace24,
           Text(
             'Welcome to Teen Bot',
-            style: context.titleMedium.copyWith(fontWeight: FontWeight.w600),
-            textAlign: TextAlign.center,
+            style: context.titleLarge.copyWith(fontWeight: FontWeight.w600, fontFamily:'Wittgenstein' ),
+            textAlign: TextAlign.left,
           ),
           kVerticalSpace8,
-          Text('Create a free Knowledge Navigator account and spark your curiosity!', style: context.bodyMedium),
+          // Text('Create a free Knowledge Navigator account and spark your curiosity!', style: context.bodyMedium),
           kVerticalSpace24,
           Row(
             children: [
