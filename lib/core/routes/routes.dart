@@ -1,5 +1,6 @@
 import 'package:adolescence_chat_bot/ui/views/home.dart';
 import 'package:adolescence_chat_bot/ui/views/register.dart';
+import 'package:adolescence_chat_bot/ui/views/voice_screen.dart';
 import 'package:adolescence_chat_bot/ui/views/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,7 +22,18 @@ final goRouterProvider = Provider<GoRouter>(
         GoRoute(path: '/', name: 'welcome', builder: (context, state) => const WelcomeView()),
         GoRoute(path: '/login', name: 'login', builder: (context, state) => const LoginView()),
         GoRoute(path: '/register', name: 'register', builder: (context, state) => const RegisterView()),
-        GoRoute(path: '/home', name: 'home', builder: (context, state) => const HomeView()),
+        GoRoute(
+          path: '/home',
+          name: 'home',
+          builder: (context, state) => const HomeView(),
+          routes: [
+            GoRoute(
+              path: 'voice-mode',
+              name: 'voice-mode',
+              builder: (context, state) => const VoiceModeView(),
+            ),
+          ],
+        ),
       ],
     );
   },

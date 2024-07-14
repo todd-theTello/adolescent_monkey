@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -110,12 +111,27 @@ class _HomeViewState extends ConsumerState<HomeView> {
             children: [
               Text(data!.firstName!, style: context.titleLarge),
               Text('${data.age} years old', style: context.titleSmall),
+              kVerticalSpace16,
+              TextButton(
+                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                onPressed: () => context.goNamed('voice-mode'),
+                child: Row(
+                  children: [
+                    const Icon(Iconsax.voice_cricle),
+                    kHorizontalSpace8,
+                    const Text('Voice only'),
+                    const Spacer(),
+                    const Icon(Iconsax.arrow_right_2)
+                  ],
+                ),
+              ),
               const Spacer(),
               TextButton(
-                  onPressed: () => ref.read(routerConfigProvider.notifier).setLogOut(),
-                  child: Row(
-                    children: [const Icon(Iconsax.logout), kHorizontalSpace8, const Text('Logout')],
-                  ))
+                onPressed: () => ref.read(routerConfigProvider.notifier).setLogOut(),
+                child: Row(
+                  children: [const Icon(Iconsax.logout), kHorizontalSpace8, const Text('Logout')],
+                ),
+              )
             ],
           ).paddingSymmetric(horizontal: 20, vertical: 20).safeArea,
         ),
@@ -278,14 +294,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                   ).expanded,
                   kHorizontalSpace16,
+                  CustomAnimatedScale(
+                    onPressed: () {
+                      context.goNamed('voice-mode');
+                    },
+                    child: Icon(Iconsax.voice_cricle),
+                  ),
+                  kHorizontalSpace8,
                   ValueListenableBuilder<bool>(
                       valueListenable: speechEnabled,
                       builder: (context, enabled, _) {
                         return CustomAnimatedScale(
-                          onLongPress: () {
-                            speechEnabled.value = true;
-                            startListening();
-                          },
+                          onLongPress: () {},
                           onLongPressUp: () {
                             stopListening();
                             speechEnabled.value = false;
@@ -301,7 +321,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           child: CircleContainer(
                             color: context.primaryColor,
                             padding: const EdgeInsets.all(12),
-                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.yellow),
+                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.white),
                           ),
                         );
                       })

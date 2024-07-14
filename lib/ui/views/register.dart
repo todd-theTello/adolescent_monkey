@@ -119,28 +119,25 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
           Text('Gender', style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600))
               .paddingSymmetric(horizontal: 8),
           ValueListenableBuilder(
-              valueListenable: gender,
-              builder: (context, selected, _) {
-                return Row(
-                  children: [
-                    Radio(
-                        value: Gender.male,
-                        groupValue: selected,
-                        onChanged: (value) {
-                          gender.value = value;
-                        }),
-                    const Text('Male'),
-                    kHorizontalSpace16,
-                    Radio(
-                        value: Gender.female,
-                        groupValue: selected,
-                        onChanged: (value) {
-                          gender.value = value;
-                        }),
-                    const Text('Female')
-                  ],
-                );
-              }),
+            valueListenable: gender,
+            builder: (context, selected, _) => Row(
+              children: [
+                Radio(
+                  value: Gender.male,
+                  groupValue: selected,
+                  onChanged: (value) => gender.value = value,
+                ),
+                const Text('Male'),
+                kHorizontalSpace16,
+                Radio(
+                  value: Gender.female,
+                  groupValue: selected,
+                  onChanged: (value) => gender.value = value,
+                ),
+                const Text('Female')
+              ],
+            ),
+          ),
           Text('Disability', style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600))
               .paddingSymmetric(horizontal: 8),
           ValueListenableBuilder(
@@ -154,11 +151,10 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
                       return Row(
                         children: [
                           Radio(
-                              value: disability,
-                              groupValue: selected,
-                              onChanged: (value) {
-                                disabilityStatus.value = value!;
-                              }),
+                            value: disability,
+                            groupValue: selected,
+                            onChanged: (value) => disabilityStatus.value = value!,
+                          ),
                           Text(disability.name),
                         ],
                       );

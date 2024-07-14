@@ -78,7 +78,6 @@ class RouterConfigNotifier extends Notifier<AuthorizationState> implements Liste
   /// redirect login to be used by go router
   String? redirect({required GoRouterState goRouterState, required bool showErrorIfNonExistentRoute}) {
     final isLoggedIn = state == AuthorizationState.authorized;
-    if (isLoggedIn) return '/home';
     if (state == AuthorizationState.initial) return null;
     if (!LocalPreference.hasOnboarded) return '/';
 
