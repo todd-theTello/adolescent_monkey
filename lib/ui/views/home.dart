@@ -98,6 +98,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         }
         if (current is AsyncData) {
           if (toSpeach) {
+            toSpeach = false;
             await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
             await flutterTts.speak(current.value!.last.botResponse!);
           }

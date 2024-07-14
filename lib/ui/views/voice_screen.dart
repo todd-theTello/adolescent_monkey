@@ -25,6 +25,7 @@ class _VoiceModeViewState extends ConsumerState<VoiceModeView> {
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   String text = '';
   FlutterTts flutterTts = FlutterTts();
+  bool toSpeach = false;
 
   @override
   void initState() {
@@ -68,8 +69,11 @@ class _VoiceModeViewState extends ConsumerState<VoiceModeView> {
       }
 
       if (current is AsyncData) {
-        await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
-        await flutterTts.speak(current.value!.last.botResponse!);
+        if (toSpeach) {
+          toSpeach = false;
+          await flutterTts.setVoice({"name": "Karen", "locale": "en-AU"});
+          await flutterTts.speak(current.value!.last.botResponse!);
+        }
       }
     });
     return Scaffold(
@@ -98,6 +102,7 @@ class _VoiceModeViewState extends ConsumerState<VoiceModeView> {
                     onLongPressUp: () {
                       stopListening();
                       if (text.trim().isNotEmpty) {
+                        toSpeach = true;
                         ref.read(chatsProvider.notifier).askChat(text: text);
                         text = '';
                       }
