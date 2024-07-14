@@ -305,10 +305,18 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       valueListenable: speechEnabled,
                       builder: (context, enabled, _) {
                         return CustomAnimatedScale(
-                          onLongPress: () {},
+                          onLongPress: () {
+                            startListening();
+                          },
                           onLongPressUp: () {
                             stopListening();
                             speechEnabled.value = false;
+                            if (text.text.trim().isNotEmpty) {
+                              toSpeach = true;
+                              inputText.value = text.text.trim();
+                              ref.read(chatsProvider.notifier).askChat(text: text.text);
+                              text.clear();
+                            }
                           },
                           onPressed: () {
                             if (text.text.trim().isNotEmpty) {
