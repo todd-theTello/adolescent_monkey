@@ -316,6 +316,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               toSpeach = true;
                               inputText.value = text.text.trim();
                               ref.read(chatsProvider.notifier).askChat(text: text.text);
+                              inputText.value = '';
                               text.clear();
                             }
                           },
