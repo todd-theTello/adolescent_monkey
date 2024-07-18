@@ -85,11 +85,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final chats = ref.watch(chatsProvider.buildWhenData);
 
     ref
-      ..listen(userProvider, (previous, current) {
-        if (current is AsyncError) {
-          if ((current.error as DioException).response?.statusCode == 401) {
+      ..listen(userProvider, (previous, state) {
+        if (state is AsyncError) {
+          if ((state.error as DioException).response?.statusCode == 401) {
             ref.read(routerConfigProvider.notifier).setLogOut();
           }
+        }
+        if (state is AsyncData && state.value!.disability == 'BLIND') {
+          context.goNamed('voice-mode');
         }
       })
       ..listen(chatsProvider, (previous, current) async {
@@ -104,252 +107,254 @@ class _HomeViewState extends ConsumerState<HomeView> {
           }
         }
       });
-    return user.when(
-      data: (data) => Scaffold(
-        endDrawer: Drawer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Material(
+      child: user.when(
+        data: (data) => Scaffold(
+          endDrawer: Drawer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(data!.firstName!, style: context.titleLarge),
+                Text('${data.age} years old', style: context.titleSmall),
+                kVerticalSpace16,
+                TextButton(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                  onPressed: () => context.goNamed('voice-mode'),
+                  child: Row(
+                    children: [
+                      const Icon(Iconsax.voice_cricle),
+                      kHorizontalSpace8,
+                      const Text('Voice only'),
+                      const Spacer(),
+                      const Icon(Iconsax.arrow_right_2)
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () => ref.read(routerConfigProvider.notifier).setLogOut(),
+                  child: Row(
+                    children: [const Icon(Iconsax.logout), kHorizontalSpace8, const Text('Logout')],
+                  ),
+                )
+              ],
+            ).paddingSymmetric(horizontal: 20, vertical: 20).safeArea,
+          ),
+          appBar: AppBar(
+            // actions: [
+            //   IconButton(
+            //       onPressed: () {
+            //         Scaffold.of(context).openEndDrawer();
+            //       },
+            //       icon: const Icon(Iconsax.textalign_justifycenter)),
+            //   kHorizontalSpace24
+            // ],
+            centerTitle: true,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset('assets/images/adole-bot.svg', height: 34),
+                kHorizontalSpace12,
+                const Text('Teen bot'),
+              ],
+            ),
+          ),
+          body: Column(
             children: [
-              Text(data!.firstName!, style: context.titleLarge),
-              Text('${data.age} years old', style: context.titleSmall),
-              kVerticalSpace16,
-              TextButton(
-                style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                onPressed: () => context.goNamed('voice-mode'),
+              chats
+                  .when(
+                    data: (data) {
+                      return switch (data!.isNotEmpty) {
+                        true => ValueListenableBuilder(
+                            valueListenable: inputText,
+                            builder: (context, text, _) {
+                              return ListView.separated(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                                itemBuilder: (context, index) {
+                                  if (text.isNotNull && index == data.length) {
+                                    return CustomPaint(
+                                      painter: UserChatBubble(context: context),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+                                        constraints: BoxConstraints(
+                                          minWidth: 64,
+                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              text!,
+                                              style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
+                                            ),
+                                            const SizedBox(
+                                              height: 12,
+                                              width: 12,
+                                              child: CircularProgressIndicator.adaptive(),
+                                            ).centerRightAlign
+                                          ],
+                                        ),
+                                      ),
+                                    ).centerRightAlign;
+                                  }
+                                  final chat = data[index];
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      CustomPaint(
+                                        painter: UserChatBubble(context: context),
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                                          constraints: BoxConstraints(
+                                            minWidth: 64,
+                                            maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                          ),
+                                          child: Text(
+                                            chat.userInput!,
+                                            style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
+                                          ),
+                                        ),
+                                      ).centerRightAlign,
+                                      kVerticalSpace12,
+                                      CustomPaint(
+                                        painter: BotChatBubble(context: context),
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                                          constraints: BoxConstraints(
+                                            minWidth: 64,
+                                            maxWidth: MediaQuery.sizeOf(context).width * 0.7,
+                                          ),
+                                          child: Text(
+                                            chat.botResponse!,
+                                            style: context.bodyMedium.copyWith(color: Colors.white),
+                                          ),
+                                        ),
+                                      ).centerLeftAlign,
+                                    ],
+                                  );
+                                },
+                                separatorBuilder: (context, index) => kVerticalSpace16,
+                                itemCount: text.isNotNull ? data.length + 1 : data.length,
+                              );
+                            }),
+                        _ => Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset('assets/images/adole-bot.svg', height: 140),
+                              kVerticalSpace20,
+                              Center(
+                                child: Text('This is the beginning of your session', style: context.bodyLarge),
+                              ),
+                            ],
+                          ),
+                      };
+                    },
+                    error: (err, stacktrace) {
+                      return Text(err.errorToString);
+                    },
+                    loading: () => const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  )
+                  .expanded,
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  border: Border(
+                    top: BorderSide(color: kDarkColor.shade300),
+                  ),
+                ),
                 child: Row(
                   children: [
-                    const Icon(Iconsax.voice_cricle),
+                    TextField(
+                      controller: text,
+                      onSubmitted: (_) {
+                        if (text.text.trim().isNotEmpty) {
+                          toSpeach = true;
+                          stopListening();
+                          inputText.value = text.text.trim();
+                          ref.read(chatsProvider.notifier).askChat(text: text.text);
+                          text.clear();
+                        }
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Ask any question...',
+                        suffixIcon: ValueListenableBuilder<bool>(
+                          valueListenable: speechEnabled,
+                          builder: (context, enabled, _) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0), // Add margin here
+                              child: enabled
+                                  ? LoadingAnimationWidget.staggeredDotsWave(
+                                      color: Colors.green,
+                                      size: 20,
+                                    )
+                                  : const SizedBox(), // If not enabled, return an empty SizedBox
+                            );
+                          },
+                        ),
+                      ),
+                    ).expanded,
+                    kHorizontalSpace16,
+                    CustomAnimatedScale(
+                      onPressed: () {
+                        context.goNamed('voice-mode');
+                      },
+                      child: Icon(Iconsax.voice_cricle),
+                    ),
                     kHorizontalSpace8,
-                    const Text('Voice only'),
-                    const Spacer(),
-                    const Icon(Iconsax.arrow_right_2)
+                    ValueListenableBuilder<bool>(
+                        valueListenable: speechEnabled,
+                        builder: (context, enabled, _) {
+                          return CustomAnimatedScale(
+                            onLongPress: () {
+                              startListening();
+                            },
+                            onLongPressUp: () {
+                              stopListening();
+                              speechEnabled.value = false;
+                              if (text.text.trim().isNotEmpty) {
+                                toSpeach = true;
+                                inputText.value = text.text.trim();
+                                ref.read(chatsProvider.notifier).askChat(text: text.text);
+                                inputText.value = '';
+                                text.clear();
+                              }
+                            },
+                            onPressed: () {
+                              if (text.text.trim().isNotEmpty) {
+                                toSpeach = true;
+                                inputText.value = text.text.trim();
+                                ref.read(chatsProvider.notifier).askChat(text: text.text);
+                                text.clear();
+                              }
+                            },
+                            child: CircleContainer(
+                              color: context.primaryColor,
+                              padding: const EdgeInsets.all(12),
+                              child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.white),
+                            ),
+                          );
+                        })
                   ],
                 ),
               ),
-              const Spacer(),
-              TextButton(
-                onPressed: () => ref.read(routerConfigProvider.notifier).setLogOut(),
-                child: Row(
-                  children: [const Icon(Iconsax.logout), kHorizontalSpace8, const Text('Logout')],
-                ),
-              )
-            ],
-          ).paddingSymmetric(horizontal: 20, vertical: 20).safeArea,
-        ),
-        appBar: AppBar(
-          // actions: [
-          //   IconButton(
-          //       onPressed: () {
-          //         Scaffold.of(context).openEndDrawer();
-          //       },
-          //       icon: const Icon(Iconsax.textalign_justifycenter)),
-          //   kHorizontalSpace24
-          // ],
-          centerTitle: true,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset('assets/images/adole-bot.svg', height: 34),
-              kHorizontalSpace12,
-              const Text('Teen bot'),
             ],
           ),
         ),
-        body: Column(
-          children: [
-            chats
-                .when(
-                  data: (data) {
-                    return switch (data!.isNotEmpty) {
-                      true => ValueListenableBuilder(
-                          valueListenable: inputText,
-                          builder: (context, text, _) {
-                            return ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                              itemBuilder: (context, index) {
-                                if (text.isNotNull && index == data.length) {
-                                  return CustomPaint(
-                                    painter: UserChatBubble(context: context),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-                                      constraints: BoxConstraints(
-                                        minWidth: 64,
-                                        maxWidth: MediaQuery.sizeOf(context).width * 0.7,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            text!,
-                                            style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
-                                          ),
-                                          const SizedBox(
-                                            height: 12,
-                                            width: 12,
-                                            child: CircularProgressIndicator.adaptive(),
-                                          ).centerRightAlign
-                                        ],
-                                      ),
-                                    ),
-                                  ).centerRightAlign;
-                                }
-                                final chat = data[index];
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    CustomPaint(
-                                      painter: UserChatBubble(context: context),
-                                      child: Container(
-                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                                        constraints: BoxConstraints(
-                                          minWidth: 64,
-                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
-                                        ),
-                                        child: Text(
-                                          chat.userInput!,
-                                          style: context.bodyMedium.copyWith(color: kDarkColor.shade800),
-                                        ),
-                                      ),
-                                    ).centerRightAlign,
-                                    kVerticalSpace12,
-                                    CustomPaint(
-                                      painter: BotChatBubble(context: context),
-                                      child: Container(
-                                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                                        constraints: BoxConstraints(
-                                          minWidth: 64,
-                                          maxWidth: MediaQuery.sizeOf(context).width * 0.7,
-                                        ),
-                                        child: Text(
-                                          chat.botResponse!,
-                                          style: context.bodyMedium.copyWith(color: Colors.white),
-                                        ),
-                                      ),
-                                    ).centerLeftAlign,
-                                  ],
-                                );
-                              },
-                              separatorBuilder: (context, index) => kVerticalSpace16,
-                              itemCount: text.isNotNull ? data.length + 1 : data.length,
-                            );
-                          }),
-                      _ => Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SvgPicture.asset('assets/images/adole-bot.svg', height: 140),
-                            kVerticalSpace20,
-                            Center(
-                              child: Text('This is the beginning of your session', style: context.bodyLarge),
-                            ),
-                          ],
-                        ),
-                    };
-                  },
-                  error: (err, stacktrace) {
-                    return Text(err.errorToString);
-                  },
-                  loading: () => const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator.adaptive(),
-                  ),
-                )
-                .expanded,
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                border: Border(
-                  top: BorderSide(color: kDarkColor.shade300),
-                ),
-              ),
-              child: Row(
-                children: [
-                  TextField(
-                    controller: text,
-                    onSubmitted: (_) {
-                      if (text.text.trim().isNotEmpty) {
-                        toSpeach = true;
-                        stopListening();
-                        inputText.value = text.text.trim();
-                        ref.read(chatsProvider.notifier).askChat(text: text.text);
-                        text.clear();
-                      }
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Ask any question...',
-                      suffixIcon: ValueListenableBuilder<bool>(
-                        valueListenable: speechEnabled,
-                        builder: (context, enabled, _) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0), // Add margin here
-                            child: enabled
-                                ? LoadingAnimationWidget.staggeredDotsWave(
-                                    color: Colors.green,
-                                    size: 20,
-                                  )
-                                : const SizedBox(), // If not enabled, return an empty SizedBox
-                          );
-                        },
-                      ),
-                    ),
-                  ).expanded,
-                  kHorizontalSpace16,
-                  CustomAnimatedScale(
-                    onPressed: () {
-                      context.goNamed('voice-mode');
-                    },
-                    child: Icon(Iconsax.voice_cricle),
-                  ),
-                  kHorizontalSpace8,
-                  ValueListenableBuilder<bool>(
-                      valueListenable: speechEnabled,
-                      builder: (context, enabled, _) {
-                        return CustomAnimatedScale(
-                          onLongPress: () {
-                            startListening();
-                          },
-                          onLongPressUp: () {
-                            stopListening();
-                            speechEnabled.value = false;
-                            if (text.text.trim().isNotEmpty) {
-                              toSpeach = true;
-                              inputText.value = text.text.trim();
-                              ref.read(chatsProvider.notifier).askChat(text: text.text);
-                              inputText.value = '';
-                              text.clear();
-                            }
-                          },
-                          onPressed: () {
-                            if (text.text.trim().isNotEmpty) {
-                              toSpeach = true;
-                              inputText.value = text.text.trim();
-                              ref.read(chatsProvider.notifier).askChat(text: text.text);
-                              text.clear();
-                            }
-                          },
-                          child: CircleContainer(
-                            color: context.primaryColor,
-                            padding: const EdgeInsets.all(12),
-                            child: Icon(enabled ? Iconsax.microphone5 : Iconsax.send1, color: Colors.white),
-                          ),
-                        );
-                      })
-                ],
-              ),
-            ),
-          ],
+        error: (error, stacktrace) {
+          return NetworkErrorWidget(
+              message: error.errorToString,
+              onPressed: () {
+                ref.read(userProvider.notifier).getUser();
+              });
+        },
+        loading: () => const Center(
+          child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
         ),
-      ),
-      error: (error, stacktrace) {
-        return NetworkErrorWidget(
-            message: error.errorToString,
-            onPressed: () {
-              ref.read(userProvider.notifier).getUser();
-            });
-      },
-      loading: () => const Center(
-        child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator.adaptive()),
       ),
     );
   }
