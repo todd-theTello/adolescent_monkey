@@ -7,7 +7,7 @@ class Endpoints {
   static const Duration receiveTimeout = Duration(milliseconds: 150000);
 
   /// Base url for network requests
-  static const String baseUrl = 'http://127.0.0.1:8181/';
+  static const String baseUrl = 'https://6f86-197-255-108-10.ngrok-free.app/';
 
   /// Get login endpoint
   static String login = 'api/login';

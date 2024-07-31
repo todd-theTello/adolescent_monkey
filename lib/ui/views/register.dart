@@ -62,15 +62,16 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         children: [
-          kVerticalSpace16,
-          SvgPicture.asset('assets/images/adole-bot.svg', height: 120),
+          kVerticalSpace52,
+          SvgPicture.asset('assets/images/icon-1.svg', height: 60, alignment: Alignment.centerLeft,),
+          kVerticalSpace24,
           Text(
             'Welcome to Teen Bot',
-            style: context.titleMedium.copyWith(fontWeight: FontWeight.w600),
-            textAlign: TextAlign.center,
+            style: context.titleLarge.copyWith(fontWeight: FontWeight.w600, fontFamily:'Wittgenstein' ),
+            textAlign: TextAlign.left,
           ),
           kVerticalSpace8,
-          Text('Create a free Knowledge Navigator account and spark your curiosity!', style: context.bodyMedium),
+          // Text('Create a free Knowledge Navigator account and spark your curiosity!', style: context.bodyMedium),
           kVerticalSpace24,
           Row(
             children: [
@@ -102,10 +103,10 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
                   readOnly: true,
                   onTap: () async {
                     dateOfBirth.value = await showDatePicker(
-                          context: context,
-                          firstDate: DateTime.now().subtract(const Duration(days: 7300)),
-                          lastDate: DateTime.now().subtract(const Duration(days: 3650)),
-                        ) ??
+                      context: context,
+                      firstDate: DateTime.now().subtract(const Duration(days: 7300)),
+                      lastDate: DateTime.now().subtract(const Duration(days: 3650)),
+                    ) ??
                         dateOfBirth.value;
                     checkForm();
                   },
@@ -119,25 +120,28 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
           Text('Gender', style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600))
               .paddingSymmetric(horizontal: 8),
           ValueListenableBuilder(
-            valueListenable: gender,
-            builder: (context, selected, _) => Row(
-              children: [
-                Radio(
-                  value: Gender.male,
-                  groupValue: selected,
-                  onChanged: (value) => gender.value = value,
-                ),
-                const Text('Male'),
-                kHorizontalSpace16,
-                Radio(
-                  value: Gender.female,
-                  groupValue: selected,
-                  onChanged: (value) => gender.value = value,
-                ),
-                const Text('Female')
-              ],
-            ),
-          ),
+              valueListenable: gender,
+              builder: (context, selected, _) {
+                return Row(
+                  children: [
+                    Radio(
+                        value: Gender.male,
+                        groupValue: selected,
+                        onChanged: (value) {
+                          gender.value = value;
+                        }),
+                    const Text('Male'),
+                    kHorizontalSpace16,
+                    Radio(
+                        value: Gender.female,
+                        groupValue: selected,
+                        onChanged: (value) {
+                          gender.value = value;
+                        }),
+                    const Text('Female')
+                  ],
+                );
+              }),
           Text('Disability', style: context.bodyMedium.copyWith(fontWeight: FontWeight.w600))
               .paddingSymmetric(horizontal: 8),
           ValueListenableBuilder(
@@ -146,15 +150,16 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
                 return Row(
                   children: List.generate(
                     DisabilityStatus.values.length,
-                    (index) {
+                        (index) {
                       final disability = DisabilityStatus.values[index];
                       return Row(
                         children: [
                           Radio(
-                            value: disability,
-                            groupValue: selected,
-                            onChanged: (value) => disabilityStatus.value = value!,
-                          ),
+                              value: disability,
+                              groupValue: selected,
+                              onChanged: (value) {
+                                disabilityStatus.value = value!;
+                              }),
                           Text(disability.name),
                         ],
                       );
@@ -194,18 +199,18 @@ class _RegisterViewState extends ConsumerState<RegisterView> {
                 return FilledButton(
                   onPressed: isValid
                       ? () {
-                          ref.read(authenticationProvider.notifier).authenticate(
-                                data: AuthenticationRequestData(
-                                  email: email.text,
-                                  password: password.text,
-                                  gender: gender.value!.value,
-                                  dateOfBirth: dateOfBirth.value,
-                                  firstName: firstName.text,
-                                  surname: surname.text,
-                                  type: disabilityStatus.value.value,
-                                ),
-                              );
-                        }
+                    ref.read(authenticationProvider.notifier).authenticate(
+                      data: AuthenticationRequestData(
+                        email: email.text,
+                        password: password.text,
+                        gender: gender.value!.value,
+                        dateOfBirth: dateOfBirth.value,
+                        firstName: firstName.text,
+                        surname: surname.text,
+                        type: disabilityStatus.value.value,
+                      ),
+                    );
+                  }
                       : null,
                   child: const Text('Register'),
                 );
